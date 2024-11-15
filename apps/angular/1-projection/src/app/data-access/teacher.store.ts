@@ -1,14 +1,18 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Teacher } from '../model/teacher.model';
-
+import { FakeHttpService } from './fake-http.service';
 @Injectable({
   providedIn: 'root',
 })
 export class TeacherStore {
+  private http = inject(FakeHttpService);
+
   teachers = signal<Teacher[]>([]);
 
-  addAll(teachers: Teacher[]) {
-    this.teachers.set(teachers);
+  constructor() {
+    this.http.fetchTeachers$.subscribe((rawTeachers) => {
+      this.teachers.set(rawTeachers);
+    });
   }
 
   addOne(teacher: Teacher) {
