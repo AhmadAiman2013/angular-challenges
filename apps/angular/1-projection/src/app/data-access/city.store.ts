@@ -1,14 +1,19 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { City } from '../model/city.model';
+import { FakeHttpService } from './fake-http.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CityStore {
+  private http = inject(FakeHttpService);
+
   cities = signal<City[]>([]);
 
-  addAll(cities: City[]) {
-    this.cities.set(cities);
+  constructor() {
+    this.http.fetchCities$.subscribe((rawCities) => {
+      this.cities.set(rawCities);
+    });
   }
 
   addOne(student: City) {

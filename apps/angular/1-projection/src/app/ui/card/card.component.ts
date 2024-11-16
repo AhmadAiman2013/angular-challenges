@@ -13,7 +13,6 @@ import { CardRowDirective } from './card-row.directive';
   selector: 'app-card',
   template: `
     <ng-content select="img" />
-
     <section>
       @for (item of items(); track item.id) {
         <ng-template
