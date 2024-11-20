@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, concatMap, map } from 'rxjs/operators';
-import { AppActions } from '../../app.actions';
-import { ActivityActions } from './activity.actions';
+import * as ActivityActions from './activity.actions';
 import { ActivityService } from './activity.service';
 
 @Injectable()
-export class ActivityEffects {
+export class ActivityEffects implements OnInitEffects {
   loadActivities$ = createEffect(() => {
     return this.actions$.pipe(
-      ofType(AppActions.initApp),
+      ofType(ActivityActions.loadActivities),
       concatMap(() =>
         this.ActivityService.fetchActivities().pipe(
           map((activities) =>
@@ -28,4 +28,8 @@ export class ActivityEffects {
     private actions$: Actions,
     private ActivityService: ActivityService,
   ) {}
+
+  ngrxOnInitEffects(): Action {
+    return ActivityActions.loadActivities();
+  }
 }

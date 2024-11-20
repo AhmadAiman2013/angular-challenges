@@ -12,6 +12,7 @@ export const activityType = [
   'Maths',
   'Physics',
 ] as const;
+
 export type ActivityType = (typeof activityType)[number];
 
 export interface Person {
@@ -24,6 +25,10 @@ export interface Activity {
   name: string;
   type: ActivityType;
   teacher: Person;
+}
+
+export interface ActivityTeachers extends Activity {
+  eligibleTeachers: Person[];
 }
 
 const factoryPerson = incrementalNumber();
