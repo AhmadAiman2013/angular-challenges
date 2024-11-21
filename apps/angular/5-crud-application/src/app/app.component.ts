@@ -1,51 +1,38 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { randText } from '@ngneat/falso';
+import { Component, inject } from '@angular/core';
+import { LoadingComponent } from './loading.component';
+import { LoadingService } from './loading.service';
+import { Todo } from './todo.model';
+import { TodoStore } from './todo.store';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [LoadingComponent],
   selector: 'app-root',
   template: `
-    <div *ngFor="let todo of todos">
-      {{ todo.title }}
-      <button (click)="update(todo)">Update</button>
-    </div>
+    <app-loading />
+    @for (todo of store.todoEntities(); track todo.id) {
+      <div>
+        {{ todo.title }}
+        <button [disabled]="loadingService.isLoading()" (click)="update(todo)">
+          Update
+        </button>
+        <button [disabled]="loadingService.isLoading()" (click)="delete(todo)">
+          Delete
+        </button>
+      </div>
+    }
   `,
-  styles: [],
+  providers: [TodoStore],
 })
-export class AppComponent implements OnInit {
-  todos!: any[];
+export class AppComponent {
+  readonly loadingService = inject(LoadingService);
+  readonly store = inject(TodoStore);
 
-  constructor(private http: HttpClient) {}
-
-  ngOnInit(): void {
-    this.http
-      .get<any[]>('https://jsonplaceholder.typicode.com/todos')
-      .subscribe((todos) => {
-        this.todos = todos;
-      });
+  update(todo: Todo) {
+    this.store.update(todo);
   }
 
-  update(todo: any) {
-    this.http
-      .put<any>(
-        `https://jsonplaceholder.typicode.com/todos/${todo.id}`,
-        JSON.stringify({
-          todo: todo.id,
-          title: randText(),
-          body: todo.body,
-          userId: todo.userId,
-        }),
-        {
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        },
-      )
-      .subscribe((todoUpdated: any) => {
-        this.todos[todoUpdated.id - 1] = todoUpdated;
-      });
+  delete(todo: Todo) {
+    this.store.delete(todo);
   }
 }
