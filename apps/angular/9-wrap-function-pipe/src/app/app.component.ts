@@ -1,15 +1,19 @@
-import { NgFor } from '@angular/common';
 import { Component } from '@angular/core';
+import { WrapperCallbackPipe } from './wrapper-callback.pipe';
 
 @Component({
   standalone: true,
-  imports: [NgFor],
+  imports: [WrapperCallbackPipe],
   selector: 'app-root',
   template: `
-    <div *ngFor="let person of persons; let index = index; let isFirst = first">
-      {{ showName(person.name, index) }}
-      {{ isAllowed(person.age, isFirst) }}
-    </div>
+    @for (person of persons; track person) {
+      <div>
+        {{ showName | wrapperCallback: person.name : $index }}
+        {{ isAllowed | wrapperCallback: person.age : $first }}
+      </div>
+    } @empty {
+      <div>nothing</div>
+    }
   `,
 })
 export class AppComponent {
