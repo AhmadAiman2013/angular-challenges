@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { tapResponse } from '@ngrx/operators';
 import { Subject, concatMap, map } from 'rxjs';
 
 @Component({
@@ -42,20 +43,24 @@ export class AppComponent implements OnInit {
       .pipe(
         map(() => this.input),
         concatMap((value) =>
-          this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`),
+          this.http.get(`https://jsonplaceholder.typicode.com/${value}/1`).pipe(
+            tapResponse({
+              next: (value) => {
+                console.log(value);
+                this.response = value;
+              },
+              error: (error) => {
+                console.log(error);
+                this.response = error;
+              },
+              complete: () => {
+                console.log('done');
+              },
+            }),
+          ),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (value) => {
-          console.log(value);
-          this.response = value;
-        },
-        error: (error) => {
-          console.log(error);
-          this.response = error;
-        },
-        complete: () => console.log('done'),
-      });
+      .subscribe();
   }
 }
