@@ -1,8 +1,19 @@
-import { Injectable, signal } from '@angular/core';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
-@Injectable({ providedIn: 'root' })
-export class UserStore {
-  user = signal({
+interface User {
+  name: string;
+  address: {
+    street: string;
+    city: string;
+    zipCode: string;
+  };
+  note: string;
+  title: string;
+  salary: number;
+}
+
+export const UserStore = signalStore(
+  withState<User>({
     name: 'Bob',
     address: {
       street: '',
@@ -12,5 +23,10 @@ export class UserStore {
     note: '',
     title: '',
     salary: 0,
-  });
-}
+  }),
+  withMethods((state) => ({
+    update(user: User) {
+      patchState(state, user);
+    },
+  })),
+);
